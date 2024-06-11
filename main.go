@@ -39,7 +39,7 @@ func (h *SleepHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("sleeping %d seconds ... zzz\n", data.Code)
 	time.Sleep(time.Duration(data.Code) * time.Second)
 	fmt.Printf("wake up  %d seconds\n", data.Code)
-	fmt.Fprint(w, "I slept in %d seconds\n", data.Code)
+	fmt.Fprintf(w, "I slept in %d seconds", data.Code)
 }
 
 func (h *EchoHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -81,11 +81,12 @@ func (h *ErrorHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	h_resp(w, data.Code, todos)
 }
 
-func h_resp(w http.ResponseWriter, code int, data any) {
+func h_resp(w http.ResponseWriter, code int, data any) error {
 	response, _ := json.Marshal(data)
 
 	w.WriteHeader(code)
-	w.Write(response)
+	_, err := w.Write(response)
+	return err
 }
 
 func main() {
@@ -93,7 +94,7 @@ func main() {
 	server := http.Server{
 		Addr:    ":8888",
 		Handler: nil,
-		ReadHeaderTimeout: 20 * time.Second,
+		// ReadHeaderTimeout: 20 * time.Second,
 	}
 
 	http.Handle("/sleep", &SleepHandler{})
